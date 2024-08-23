@@ -7,6 +7,18 @@ interface StatsTitleDescriptionProps {
 }
 
 const StatsTitleDescription: FC<StatsTitleDescriptionProps> = ({ positiveChange, negativeChange }) => {
+  // Helper function to determine the arrow and format the value
+  const getArrowAndFormattedValue = (value: string) => {
+    const numericValue = parseFloat(value);
+    const formattedValue = Math.abs(numericValue).toFixed(2); // Remove the minus sign and format the value
+    const arrow = numericValue >= 0 ? '↑' : '↓'; // Arrow direction based on the value
+
+    return { formattedValue, arrow };
+  };
+
+  const { formattedValue: formattedPositiveValue, arrow: positiveArrow } = getArrowAndFormattedValue(positiveChange);
+  const { formattedValue: formattedNegativeValue, arrow: negativeArrow } = getArrowAndFormattedValue(negativeChange);
+
   return (
     <Container py={5} maxW={'container.lg'} backgroundColor={'white'} borderRadius={'md'} boxShadow="lg">
       <Grid
@@ -23,10 +35,10 @@ const StatsTitleDescription: FC<StatsTitleDescriptionProps> = ({ positiveChange,
           <Flex flexDirection={'column'}>
             <Flex alignItems={'center'}>
               <Text fontSize={'4xl'} fontWeight={'bold'}>
-                {positiveChange}%
+                {formattedPositiveValue}%
               </Text>
-              <Box ml={2} color="green.500" fontSize="4xl">
-                &#9650; {/* Unicode for up arrow */}
+              <Box ml={2} color={parseFloat(positiveChange) >= 0 ? "green.500" : "red.500"} fontSize="4xl">
+                {positiveArrow}
               </Box>
             </Flex>
             <Box fontSize={'sm'}>
@@ -38,10 +50,10 @@ const StatsTitleDescription: FC<StatsTitleDescriptionProps> = ({ positiveChange,
           <Flex flexDirection={'column'}>
             <Flex alignItems={'center'}>
               <Text fontSize={'4xl'} fontWeight={'bold'}>
-                {negativeChange}%
+                {formattedNegativeValue}%
               </Text>
-              <Box ml={2} color="red.500" fontSize="4xl">
-                &#9660; {/* Unicode for down arrow */}
+              <Box ml={2} color={parseFloat(negativeChange) <= 0 ? "red.500" : "green.500"} fontSize="4xl">
+                {negativeArrow}
               </Box>
             </Flex>
             <Box fontSize={'sm'}>
