@@ -1,50 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, Timestamp } from 'firebase/firestore';
-import { db } from '../Auth/firebase'; // Adjust the path as needed
-import FeedCard from './FeedCArd'; // Correct the import path as needed
-import { Spinner, Box } from '@chakra-ui/react'; // Import Chakra UI components
+import { Box, SimpleGrid, Spinner } from '@chakra-ui/react';
+import FeedCard from './FeedCArd'; // Corrected import path
 
-// Define the type for tweet data
+// Updated Tweet interface based on API response
 interface Tweet {
-  id: string; // Add the id property here
-  userId: string;
-  username: string | null;
-  email: string; // Add the email property here
-  userImgUrl: string | null;
-  tweet: string;
-  timestamp: Timestamp;
-  sentiment: string; // This will be a string from Firestore
+  Comments: string[];
+  Likes: number;
+  category: string;
+  email_id: string;
+  fake_news: string;
+  label: number;
+  overall_percentage: number;
+  overall_score: number;
+  sentiment: 'Positive' | 'Negative' | 'Neutral'; // Adjusted to match API response
+  text: string;
+  timestamp: string; // Using string for initial API data
 }
 
-const Feeds: React.FC = () => {
+// Define the type for the Feeds props
+interface FeedsProps {
+  data: Tweet[]; // Expect data to be an array of Tweet objects
+  handleLoading: (loading: boolean) => void; // Function to handle loading state
+  isLoading: boolean; // To handle overall loading state
+}
+
+const Feeds: React.FC<FeedsProps> = ({ data, handleLoading, isLoading }) => {
   const [tweets, setTweets] = useState<Tweet[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchTweets = async () => {
-      setLoading(true); // Ensure loading state is set to true before fetching
-      try {
-        const querySnapshot = await getDocs(collection(db, 'tweets'));
-        const tweetsData: Tweet[] = querySnapshot.docs.map(doc => {
-          const data = doc.data() as Omit<Tweet, 'id'>; // Exclude 'id' from the type
-          return {
-            id: doc.id,
-            ...data
-          };
-        });
-        setTweets(tweetsData);
-      } catch (error) {
-        console.error('Error fetching tweets:', error);
-        // Consider setting an error state to display an error message
-      } finally {
-        setLoading(false);
-      }
-    };
+    handleLoading(isLoading); // Call handleLoading with current isLoading state
+  }, [isLoading, handleLoading]);
 
-    fetchTweets();
-  }, []); // Fetch tweets only once on component mount
+  useEffect(() => {
+    setTweets(data); // Directly set the data array to state
+  }, [data]);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <Spinner size="xl" color="teal.500" />
@@ -53,34 +44,43 @@ const Feeds: React.FC = () => {
   }
 
   return (
-    <div>
+    <Box p={4}>
       {tweets.length > 0 ? (
-        tweets.map((tweet) => {
-          // Determine sentiment with fallback
-          const sentiment: 'positive' | 'neutral' | 'negative' | undefined = 
-            ['positive', 'neutral', 'negative'].includes(tweet.sentiment) 
-            ? tweet.sentiment as 'positive' | 'neutral' | 'negative' 
-            : undefined;
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+          {tweets.map((tweet, index) => {
+            // Convert timestamp string to Date object
+            const timestamp = new Date(tweet.timestamp);
 
-          return (
-            <FeedCard
-              key={tweet.id}
-              profileImage={tweet.userImgUrl || 'https://cdn.dribbble.com/userupload/9650949/file/original-e575ade7bf00f5e59879e7b614731e61.jpg?resize=2048x1536'}
-              username={tweet.username || 'Unknown User'}
-              email={tweet.email || 'No Email'} // Pass email to FeedCard
-              handle={tweet.userId} // Assuming handle is the userId, adjust as needed
-              content={tweet.tweet}
-              timestamp={tweet.timestamp.toDate()} // Pass as Date object
-              sentiment={sentiment} // Pass the validated sentiment
-            />
-          );
-        })
+            // Determine sentiment with fallback
+            const sentiment: 'positive' | 'negative' | 'neutral' = 
+              ['Positive', 'Negative', 'Neutral'].includes(tweet.sentiment)
+              ? tweet.sentiment.toLowerCase() as 'positive' | 'negative' | 'neutral'
+              : 'neutral';
+
+            return (
+              <FeedCard
+                key={index}
+                profileImage={'https://cdn.dribbble.com/userupload/13825225/file/original-dd0914811f7fdd9cd7cfe1f83bbf4810.jpg?resize=1504x1128'}
+                username={tweet.email_id || 'Unknown User'}
+                email={tweet.email_id || 'No Email'}
+                category={tweet.category}
+                content={tweet.text}
+                timestamp={timestamp} // Pass as Date object
+                sentiment={sentiment} // Pass the validated sentiment
+                fake_news={tweet.fake_news}
+                Likes={tweet.Likes}
+                comments={tweet.Comments}
+                overall_percentage={tweet.overall_percentage}
+              />
+            );
+          })}
+        </SimpleGrid>
       ) : (
         <Box textAlign="center" p={4}>
           <p>No tweets available</p>
         </Box>
       )}
-    </div>
+    </Box>
   );
 };
 

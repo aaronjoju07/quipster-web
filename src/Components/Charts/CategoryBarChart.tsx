@@ -5,18 +5,23 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Toolti
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
-const CategoryBarChart: FC = () => {
-  const categories = ["Sports", "Politics", "Business"];
-  const values = [50, 30, 20]; // Example values for each category
+interface CategoryBarChartProps {
+  data: { [key: string]: number };
+}
 
-  const data = {
+const CategoryBarChart: FC<CategoryBarChartProps> = ({ data }) => {
+  // Extract category names and values from the data prop
+  const categories = Object.keys(data);
+  const values = Object.values(data);
+
+  const chartData = {
     labels: categories,
     datasets: [
       {
-        label: "Comment Categories",
+        label: 'Category Distribution',
         data: values,
-        backgroundColor: ["#a9a9a9", "#deb887", "#fff8dc"], // Colors for each category
-        borderColor: ["#4C1D95", "#D97706", "#047857"], // Border colors for each bar
+        backgroundColor: '#48BB78', // Light blue background
+        borderColor: 'yellow', // Dark blue border
         borderWidth: 1,
       },
     ],
@@ -27,9 +32,16 @@ const CategoryBarChart: FC = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false,
+        labels: {
+          color: '#212529', // Dark color for legend text
+        },
       },
       tooltip: {
+        backgroundColor: '#ffffff', // White background for tooltips
+        titleColor: '#000000', // Black title color for tooltips
+        bodyColor: '#000000', // Black body text color for tooltips
+        borderColor: '#ddd', // Light grey border color for tooltips
+        borderWidth: 1,
         callbacks: {
           label: function (context: any) {
             return `${context.label}: ${context.raw}`;
@@ -43,7 +55,7 @@ const CategoryBarChart: FC = () => {
           display: false,
         },
         ticks: {
-          color: '#333',
+          color: '#212529', // Dark color for x-axis ticks
           font: {
             size: 14,
             weight: 'bold',
@@ -52,10 +64,10 @@ const CategoryBarChart: FC = () => {
       },
       y: {
         grid: {
-          borderColor: '#ddd',
+          borderColor: '#ddd', // Light grey grid border
         },
         ticks: {
-          color: '#333',
+          color: '#212529', // Dark color for y-axis ticks
           font: {
             size: 14,
             weight: 'bold',
@@ -66,8 +78,8 @@ const CategoryBarChart: FC = () => {
   };
 
   return (
-    <Box p="2" bg="#ffebcd" borderRadius="md" boxShadow="base" h="full" w="full">
-      <Bar data={data} options={options} />
+    <Box p="2" bg="#ffffff" borderRadius="md" boxShadow="base" h="full" w="full">
+      <Bar data={chartData} options={options} />
     </Box>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   IconButton,
@@ -16,9 +16,10 @@ import {
 import { FaPlus } from 'react-icons/fa';
 import Feeds from '../Components/Feeds'; // Adjust import path as needed
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../Auth/firebase';
+import { auth, db } from '../Auth/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import axios from 'axios';
 
-// Define the type for the user data
 export interface User {
   uid: string;
   displayName: string | null;
@@ -27,12 +28,53 @@ export interface User {
 }
 
 const Feed: React.FC = () => {
-  
-  const [user, setUser] = useState<User | null>(null); 
-  
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [user, setUser] = useState<User | null>(null);
+  const [processCommentsData, setProcessCommentsData] = useState<any[]>([]); // Ensure it's an array
+  const [error, setError] = useState<string | null>(null);
   const [tweetContent, setTweetContent] = useState('');
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true); // Track loading state of data fetch
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+        fetchData(user.email); // Call fetchData with user's email
+      } else {
+        setUser(null);
+        setProcessCommentsData([]); // Clear data if no user
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const fetchData = async (email: string | null) => {
+    if (!email) return;
+
+    setDataLoading(true); // Set loading state to true when fetching data
+
+    try {
+      const [filterResponse, processResponse, processCommentsResponse] = await Promise.all([
+        axios.get('http://127.0.0.1:5000/process'),
+        axios.get(`http://127.0.0.1:5000/filter_by_email?email=${email}`),
+        axios.get('http://127.0.0.1:5000/process_comments')
+      ]);
+
+      // Handle responses
+      setProcessCommentsData(processCommentsResponse.data.data || []); // Ensure data is correctly set
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'An error occurred');
+      } else {
+        setError('An unknown error occurred');
+      }
+    } finally {
+      setDataLoading(false); // Set loading state to false when fetching data is done
+    }
+  };
 
   const handlePostTweet = async () => {
     if (!user) return;
@@ -59,6 +101,10 @@ const Feed: React.FC = () => {
     }
   };
 
+  const handleLoading = (loading: boolean) => {
+    setDataLoading(loading);
+  };
+
   return (
     <Flex direction="column" height="100vh" overflow="hidden">
       <Box
@@ -69,10 +115,9 @@ const Feed: React.FC = () => {
         borderWidth="1px"
         borderColor="gray.200"
       >
-        <Feeds />
+        <Feeds data={processCommentsData} handleLoading={handleLoading} isLoading={dataLoading} />
       </Box>
 
-      {/* Floating Button */}
       <IconButton
         icon={<FaPlus />}
         aria-label="Add Tweet"
@@ -85,7 +130,6 @@ const Feed: React.FC = () => {
         borderRadius="full"
       />
 
-      {/* Modal for adding a new tweet */}
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay
           bg="blackAlpha.600" // Dark overlay to blur background

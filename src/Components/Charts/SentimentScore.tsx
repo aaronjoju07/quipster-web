@@ -6,11 +6,11 @@ interface SentimentScoreProps {
 }
 
 const SentimentScore: FC<SentimentScoreProps> = ({ score }) => {
-  const colorScheme = score >= 60 ? "green" : score >= 40 ? "yellow" : "red";
-  
+  // Determine the color scheme based on the score
+  const colorScheme = score >= 60 ? "green.400" : score >= 40 ? "red.400" : "red";
 
   return (
-    <Box p="4" bg="" borderRadius="md" boxShadow="lg" textAlign="center" height="100%">
+    <Box p="4" bg="white" borderRadius="md" boxShadow="lg" textAlign="center" height="100%">
       <Text fontSize="xl" fontWeight="semibold" color="gray.700" mb="3">
         Sentiment Analysis Score
       </Text>
@@ -19,7 +19,7 @@ const SentimentScore: FC<SentimentScoreProps> = ({ score }) => {
           value={score}
           size="120px"
           thickness="10px"
-          color={`#8DB04C`}
+          color={colorScheme}
           trackColor="gray.50"
         >
           <CircularProgressLabel fontSize="2xl" fontWeight="bold" color="gray.700">

@@ -5,10 +5,16 @@ import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Title, Tooltip, Legend);
 
-const PNGraph: FC = () => {
-  const labels = ["Week 1", "Week 2", "Week 3", "Week 4"];
-  const positiveData = [20, 25, 30, 40];
-  const negativeData = [5, 10, 7, 3];
+interface PNGraphProps {
+  pos: { [key: string]: number };
+  neg: { [key: string]: number };
+}
+
+const PNGraph: FC<PNGraphProps> = ({ pos, neg }) => {
+  // Extract labels and data from pos and neg
+  const labels = Array.from(new Set([...Object.keys(pos), ...Object.keys(neg)])).sort();
+  const positiveData = labels.map(label => pos[label] || 0);
+  const negativeData = labels.map(label => neg[label] || 0);
 
   const chartOptions = (color: string) => ({
     responsive: true,
@@ -18,7 +24,7 @@ const PNGraph: FC = () => {
       },
       title: {
         display: true,
-        text: color === "#8DB596" ? "Positive Comments" : "Negative Comments",
+        text: color === "black" ? "Positive Comments" : "Negative Comments",
         color,
         font: {
           size: 18,
@@ -40,7 +46,6 @@ const PNGraph: FC = () => {
           color,
           font: {
             size: 14,
-            weight: 'bold',
           },
         },
       },
@@ -53,7 +58,6 @@ const PNGraph: FC = () => {
           color,
           font: {
             size: 14,
-            weight: 'bold',
           },
         },
       },
@@ -99,12 +103,12 @@ const PNGraph: FC = () => {
   };
 
   return (
-    <Flex h="18rem" gap="6" p="4" bg="#C0C0C0" borderRadius="lg" boxShadow="lg">
-      <Box w="50%" p="4" bg="#ffefd5" borderRadius="md" boxShadow="base">
-        <Line data={positiveChartData} options={chartOptions("#8DB596")} />
+    <Flex h="18rem" gap="6" p="4" bg="" borderWidth={0.1} borderRadius="md" boxShadow="lg">
+      <Box w="50%" p="4" bg="white" borderRadius="md" >
+        <Line data={positiveChartData} options={chartOptions("black")} />
       </Box>
-      <Box w="50%" p="4" bg="#ffefd5" borderRadius="md" boxShadow="base">
-        <Line data={negativeChartData} options={chartOptions("#F08080")} />
+      <Box w="50%" p="4" bg="white" borderRadius="md" >
+        <Line data={negativeChartData} options={chartOptions("gray.900")} />
       </Box>
     </Flex>
   );
