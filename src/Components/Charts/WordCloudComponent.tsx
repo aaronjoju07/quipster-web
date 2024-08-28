@@ -2,19 +2,18 @@ import { FC } from "react";
 import WordCloud from "react-wordcloud";
 import { Box } from "@chakra-ui/react";
 
-const words = [
-  { text: "React", value: 50 },
-  { text: "TypeScript", value: 30 },
-  { text: "ChakraUI", value: 25 },
-  { text: "JavaScript", value: 40 },
-  { text: "WordCloud", value: 20 },
-  { text: "Visualization", value: 15 },
-  { text: "Graph", value: 35 },
-  { text: "Dashboard", value: 30 },
-  // Add more words and values as needed
-];
+// Define the prop type for WordCloudComponent
+interface WordCloudComponentProps {
+  data: { [key: string]: number };
+}
 
-const WordCloudComponent: FC = () => {
+const WordCloudComponent: FC<WordCloudComponentProps> = ({ data }) => {
+  // Convert the data object into the format expected by react-wordcloud
+  const words = Object.entries(data).map(([text, value]) => ({
+    text,
+    value,
+  }));
+
   const options = {
     rotations: 2,
     rotationAngles: [-90, 0],
@@ -24,10 +23,8 @@ const WordCloudComponent: FC = () => {
 
   return (
     <Box
-      h="100%"
+      h="73%"
       w="100%"
-      p="4"
-      bg="#fafad2"
       borderRadius="md"
       boxShadow="base"
     >

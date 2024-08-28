@@ -6,22 +6,34 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Toolti
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
 interface CategoryBarChartProps {
-  data: { [key: string]: number };
+  data: {
+    [category: string]: {
+      Negative: number;
+      Positive: number;
+    };
+  };
 }
 
 const CategoryBarChart: FC<CategoryBarChartProps> = ({ data }) => {
-  // Extract category names and values from the data prop
   const categories = Object.keys(data);
-  const values = Object.values(data);
+  const negativeValues = categories.map(category => data[category].Negative);
+  const positiveValues = categories.map(category => data[category].Positive);
 
   const chartData = {
     labels: categories,
     datasets: [
       {
-        label: 'Category Distribution',
-        data: values,
-        backgroundColor: '#48BB78', // Light blue background
-        borderColor: 'yellow', // Dark blue border
+        label: 'Negative',
+        data: negativeValues,
+        backgroundColor: '#f56565',
+        borderColor: 'darkred',
+        borderWidth: 1,
+      },
+      {
+        label: 'Positive',
+        data: positiveValues,
+        backgroundColor: 'rgba(75, 187, 120)',
+        borderColor: 'darkgreen',
         borderWidth: 1,
       },
     ],
@@ -44,13 +56,14 @@ const CategoryBarChart: FC<CategoryBarChartProps> = ({ data }) => {
         borderWidth: 1,
         callbacks: {
           label: function (context: any) {
-            return `${context.label}: ${context.raw}`;
+            return `${context.dataset.label}: ${context.raw}`;
           },
         },
       },
     },
     scales: {
       x: {
+        stacked: true, // Stack the bars horizontally
         grid: {
           display: false,
         },
@@ -63,6 +76,7 @@ const CategoryBarChart: FC<CategoryBarChartProps> = ({ data }) => {
         },
       },
       y: {
+        stacked: true, // Stack the bars vertically
         grid: {
           borderColor: '#ddd', // Light grey grid border
         },

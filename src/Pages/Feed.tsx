@@ -118,7 +118,7 @@ const Feed: React.FC = () => {
         <Feeds data={processCommentsData} handleLoading={handleLoading} isLoading={dataLoading} />
       </Box>
 
-      <IconButton
+      {/* <IconButton
         icon={<FaPlus />}
         aria-label="Add Tweet"
         position="fixed"
@@ -128,7 +128,7 @@ const Feed: React.FC = () => {
         colorScheme="teal"
         onClick={onOpen}
         borderRadius="full"
-      />
+      /> */}
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay

@@ -29,6 +29,7 @@ const Dashboard: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const response = await axios.get('http://127.0.0.1:5000/analysis');
         setData(response.data);
       } catch (err) {
@@ -44,8 +45,8 @@ const Dashboard: FC = () => {
   useEffect(() => {
     if (data) {
       const fetchGeminiResponse = async () => {
+        setReviewLoading(true)
         try {
-          setReviewLoading(true)
           const response = await axios.post('http://127.0.0.1:5000/api/result', {
             sentimentScore: sentimentScore,
             categoryValues: categoryValues,
@@ -70,8 +71,7 @@ const Dashboard: FC = () => {
   const negativeComments = data?.Negative || 30;
   const Score = (data?.Overall_Score || 0.6) * 100;
   const sentimentScore = parseFloat(Score.toFixed(2));
-  const categoryValues = data?.category_value_list || {};
-  const reviewText = data?.reviewText || "The analysis indicates a predominantly positive sentiment, with some neutral and fewer negative reviews.";
+  const categoryValues = data?.category_pos_neg || {};
   const yer_pos: SentimentData = data?.Sentimental_Yearwise_Freq_Pos || {};
   const yer_neg: SentimentData = data?.Sentimental_Yearwise_Freq_Neg || {};
 
@@ -107,13 +107,13 @@ const Dashboard: FC = () => {
     <Flex minH="100vh" p="5" gap="4" bg="white" overflowX="hidden">
       {/* First Column */}
       <Flex w="25%" direction="column" gap="1" minH="calc(100vh - 1rem)">
-        <Box flex="1" bg="white">
+        <Box bg="white">
           <CommentSummary
             positive={positiveComments}
             negative={negativeComments}
           />
         </Box>
-        <Box flex="1" borderRadius={'md'} boxShadow={'lg'}>
+        <Box h={'530px'} borderRadius={'md'} boxShadow={'md'} m={1} >
           <CategoryBarChart data={categoryValues} />
         </Box>
       </Flex>
@@ -123,8 +123,9 @@ const Dashboard: FC = () => {
         <Box flex="1">
           <SentimentScore score={sentimentScore} />
         </Box>
-        <Box flex="1" bg="#C0C0C0">
-          <img src={Sent_Img} alt="Example" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <Box flex="3" bg="">
+          {/* <img src={Sent_Img} alt="Example" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> */}
+          <WordCloudComponent data={data.top_30_words} />
         </Box>
       </Flex>
 
@@ -134,14 +135,8 @@ const Dashboard: FC = () => {
           <StatsTitleDescription positiveChange={posPercentageDifference} negativeChange={negPercentageDifference} />
           <PNGraph pos={data.Sentimental_Monthwise_Freq_Pos} neg={data.Sentimental_Monthwise_Freq_Neg} />
         </Box>
-        <Box flex="1" bg="" p={2}>
-          {/* Uncomment if WordCloudComponent is ready to use */}
-          {/* <WordCloudComponent data={data.top_30_words} /> */}
+        <Box flex="1" bg="white" p={2}>
           {geminiResponse && <Review reviewText={geminiResponse} isloading={reviewLoading} />}
-          <Box flex="" bg="#DCBCB1">
-            {/* <Review reviewText={reviewText} /> */}
-
-          </Box>
         </Box>
       </Flex>
     </Flex>
