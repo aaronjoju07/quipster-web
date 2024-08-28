@@ -13,11 +13,11 @@ const StatsTitleDescription: FC<StatsTitleDescriptionProps> = ({ positiveChange,
     const formattedValue = Math.abs(numericValue).toFixed(2); // Remove the minus sign and format the value
     const arrow = numericValue >= 0 ? '↑' : '↓'; // Arrow direction based on the value
 
-    return { formattedValue, arrow };
+    return { formattedValue, arrow, numericValue };
   };
 
-  const { formattedValue: formattedPositiveValue, arrow: positiveArrow } = getArrowAndFormattedValue(positiveChange);
-  const { formattedValue: formattedNegativeValue, arrow: negativeArrow } = getArrowAndFormattedValue(negativeChange);
+  const { formattedValue: formattedPositiveValue, arrow: positiveArrow, numericValue: positiveNumericValue } = getArrowAndFormattedValue(positiveChange);
+  const { formattedValue: formattedNegativeValue, arrow: negativeArrow, numericValue: negativeNumericValue } = getArrowAndFormattedValue(negativeChange);
 
   return (
     <Container py={5} maxW={'container.lg'} backgroundColor={'white'} borderRadius={'md'} boxShadow="lg">
@@ -37,12 +37,14 @@ const StatsTitleDescription: FC<StatsTitleDescriptionProps> = ({ positiveChange,
               <Text fontSize={'4xl'} fontWeight={'bold'}>
                 {formattedPositiveValue}%
               </Text>
-              <Box ml={2} color={parseFloat(positiveChange) >= 0 ? "green.500" : "red.500"} fontSize="4xl">
+              <Box ml={2} color={positiveNumericValue >= 0 ? "green.500" : "red.500"} fontSize="4xl">
                 {positiveArrow}
               </Box>
             </Flex>
             <Box fontSize={'sm'}>
-              Percentage increase in positive sentiment year over year, highlighting growth in favorable opinions.
+              {positiveNumericValue >= 0
+                ? "Percentage increase in positive sentiment year over year, highlighting growth in favorable opinions."
+                : "Percentage decrease in positive sentiment year over year, indicating a reduction in favorable opinions."}
             </Box>
           </Flex>
         </GridItem>
@@ -52,12 +54,14 @@ const StatsTitleDescription: FC<StatsTitleDescriptionProps> = ({ positiveChange,
               <Text fontSize={'4xl'} fontWeight={'bold'}>
                 {formattedNegativeValue}%
               </Text>
-              <Box ml={2} color={parseFloat(negativeChange) <= 0 ? "red.500" : "green.500"} fontSize="4xl">
+              <Box ml={2} color={negativeNumericValue <= 0 ? "red.500" : "green.500"} fontSize="4xl">
                 {negativeArrow}
               </Box>
             </Flex>
             <Box fontSize={'sm'}>
-              Percentage decrease in negative sentiment year over year, indicating a reduction in unfavorable opinions.
+              {negativeNumericValue <= 0
+                ? "Percentage decrease in negative sentiment year over year, indicating a reduction in unfavorable opinions."
+                : "Percentage increase in negative sentiment year over year, highlighting growth in unfavorable opinions."}
             </Box>
           </Flex>
         </GridItem>

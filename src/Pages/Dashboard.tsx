@@ -23,6 +23,8 @@ const Dashboard: FC = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [geminiResponse, setGeminiResponse] = useState<string | null>(null);
+  const [reviewLoading, setReviewLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,6 +40,28 @@ const Dashboard: FC = () => {
 
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (data) {
+      const fetchGeminiResponse = async () => {
+        try {
+          setReviewLoading(true)
+          const response = await axios.post('http://127.0.0.1:5000/api/result', {
+            sentimentScore: sentimentScore,
+            categoryValues: categoryValues,
+            posPercentageDifference: posPercentageDifference,
+            negPercentageDifference: negPercentageDifference
+          });
+          setGeminiResponse(response.data.response);
+          setReviewLoading(false)
+        } catch (err) {
+          console.error('Failed to fetch Gemini AI response:', err);
+        }
+      };
+
+      fetchGeminiResponse();
+    }
+  }, [data]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
@@ -65,33 +89,28 @@ const Dashboard: FC = () => {
     if (sortedData.length < 2) {
       return 'Not enough data';
     }
-  
+
     const mostRecent = sortedData[0];
     const secondMostRecent = sortedData[1];
-  
+
     const difference = mostRecent.value - secondMostRecent.value;
     const percentageDifference = (difference / secondMostRecent.value) * 100;
-  
+
     return `${percentageDifference.toFixed(2)}`;
   };
-  
+
   // Usage in component
   const posPercentageDifference = calculatePercentageDifference(sortedPos);
   const negPercentageDifference = calculatePercentageDifference(sortedNeg);
-  
-  // Displaying the results
-  console.log(`Positive Sentiments Percentage Difference: ${posPercentageDifference}`);
-  console.log(`Negative Sentiments Percentage Difference: ${negPercentageDifference}`);
-
 
   return (
     <Flex minH="100vh" p="5" gap="4" bg="white" overflowX="hidden">
       {/* First Column */}
       <Flex w="25%" direction="column" gap="1" minH="calc(100vh - 1rem)">
         <Box flex="1" bg="white">
-          <CommentSummary 
-            positive={positiveComments} 
-            negative={negativeComments} 
+          <CommentSummary
+            positive={positiveComments}
+            negative={negativeComments}
           />
         </Box>
         <Box flex="1" borderRadius={'md'} boxShadow={'lg'}>
@@ -113,18 +132,16 @@ const Dashboard: FC = () => {
       <Flex w="50%" direction="column" gap="5" minH="calc(100vh - 2rem)">
         <Box flex="1" bg="">
           <StatsTitleDescription positiveChange={posPercentageDifference} negativeChange={negPercentageDifference} />
-          <PNGraph pos={data.Sentimental_Monthwise_Freq_Pos}  neg={data.Sentimental_Monthwise_Freq_Neg}  />
+          <PNGraph pos={data.Sentimental_Monthwise_Freq_Pos} neg={data.Sentimental_Monthwise_Freq_Neg} />
         </Box>
-        <Box flex="1" bg="#C0C0C0">
+        <Box flex="1" bg="" p={2}>
           {/* Uncomment if WordCloudComponent is ready to use */}
           {/* <WordCloudComponent data={data.top_30_words} /> */}
+          {geminiResponse && <Review reviewText={geminiResponse} isloading={reviewLoading} />}
+          <Box flex="" bg="#DCBCB1">
+            {/* <Review reviewText={reviewText} /> */}
 
-          <Review reviewText={reviewText} />
-
-        <Box flex="" bg="#DCBCB1">
-        <Review reviewText={reviewText} />
-
-        </Box>
+          </Box>
         </Box>
       </Flex>
     </Flex>
