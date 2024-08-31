@@ -121,7 +121,7 @@ export default function WithSpeechBubbles() {
                 'https://media.licdn.com/dms/image/D4E03AQEdVoFxX3RV7g/profile-displayphoto-shrink_200_200/0/1705822432374?e=2147483647&v=beta&t=Z5ObXgZw-UjLwin8Kw3uo4vdvSdDU2J7MsWBQ2LSbq0'
               }
               name={'Aaron Joju'}
-              title={'Team Lead'}
+              title={''}
             />
           </Testimonial>
           <Testimonial>
@@ -136,7 +136,7 @@ export default function WithSpeechBubbles() {
                 'https://media.licdn.com/dms/image/v2/D5603AQEV6dUp2DP13Q/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1706789954317?e=2147483647&v=beta&t=Mihzv567k0J8tSdL_zj0MatH9IsFNW0bq0M9JKFzMoE'
               }
               name={'Sona Sabu'}
-              title={'Project Coordinator'}
+              title={''}
             />
           </Testimonial>
           <Testimonial>
@@ -151,7 +151,7 @@ export default function WithSpeechBubbles() {
                 'https://images.unsplash.com/photo-1586297135537-94bc9ba060aa?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80'
               }
               name={'Akhil Babay'}
-              title={'Technical Lead'}
+              title={''}
             />
           </Testimonial>
         </Stack>
